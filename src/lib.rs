@@ -66,6 +66,8 @@ mod interface;
 
 #[cfg(feature = "epd7in5")]
 pub mod epd7in5;
+#[cfg(feature = "epd7in5_v2")]
+pub mod epd7in5_v2;
 
 #[cfg(feature = "epd4in2")]
 pub mod epd4in2;
