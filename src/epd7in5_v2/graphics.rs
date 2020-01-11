@@ -97,7 +97,7 @@ mod tests {
         let mut display = Display7in5::default();
         display.set_rotation(DisplayRotation::Rotate90);
         display.draw(
-            Line::new(Coord::new(0, 632), Coord::new(0, 639))
+            Line::new(Coord::new(0, 792), Coord::new(0, 799))
                 .stroke(Some(Color::Black))
                 .into_iter(),
         );
@@ -116,7 +116,7 @@ mod tests {
         let mut display = Display7in5::default();
         display.set_rotation(DisplayRotation::Rotate180);
         display.draw(
-            Line::new(Coord::new(632, 383), Coord::new(639, 383))
+            Line::new(Coord::new(792, 479), Coord::new(799, 479))
                 .stroke(Some(Color::Black))
                 .into_iter(),
         );
@@ -135,7 +135,7 @@ mod tests {
         let mut display = Display7in5::default();
         display.set_rotation(DisplayRotation::Rotate270);
         display.draw(
-            Line::new(Coord::new(383, 0), Coord::new(383, 7))
+            Line::new(Coord::new(479, 0), Coord::new(479, 7))
                 .stroke(Some(Color::Black))
                 .into_iter(),
         );
