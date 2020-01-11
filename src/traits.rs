@@ -30,10 +30,10 @@ impl Default for RefreshLUT {
 pub(crate) trait InternalWiAdditions<SPI, CS, BUSY, DC, RST>
 where
     SPI: Write<u8>,
-    CS: OutputPin,
-    BUSY: InputPin,
-    DC: OutputPin,
-    RST: OutputPin,
+    CS: OutputPin<Error = SPI::Error>,
+    BUSY: InputPin<Error = SPI::Error>,
+    DC: OutputPin<Error = SPI::Error>,
+    RST: OutputPin<Error = SPI::Error>,
 {
     /// This initialises the EPD and powers it up
     ///
@@ -57,10 +57,10 @@ pub trait WaveshareThreeColorDisplay<SPI, CS, BUSY, DC, RST>:
     WaveshareDisplay<SPI, CS, BUSY, DC, RST>
 where
     SPI: Write<u8>,
-    CS: OutputPin,
-    BUSY: InputPin,
-    DC: OutputPin,
-    RST: OutputPin,
+    CS: OutputPin<Error = SPI::Error>,
+    BUSY: InputPin<Error = SPI::Error>,
+    DC: OutputPin<Error = SPI::Error>,
+    RST: OutputPin<Error = SPI::Error>,
 {
     /// Transmit data to the SRAM of the EPD
     ///
@@ -79,10 +79,10 @@ where
 pub trait WaveshareDisplay<SPI, CS, BUSY, DC, RST>
 where
     SPI: Write<u8>,
-    CS: OutputPin,
-    BUSY: InputPin,
-    DC: OutputPin,
-    RST: OutputPin,
+    CS: OutputPin<Error = SPI::Error>,
+    BUSY: InputPin<Error = SPI::Error>,
+    DC: OutputPin<Error = SPI::Error>,
+    RST: OutputPin<Error = SPI::Error>,
 {
     /// Creates a new driver from a SPI peripheral, CS Pin, Busy InputPin, DC
     ///
@@ -172,16 +172,16 @@ where
     /// This is normally handled by the more complicated commands themselves,
     /// but in the case you send data and commands directly you might need to check
     /// if the device is still busy
-    fn is_busy(&self) -> bool;
+    fn is_busy(&self) -> Result<bool, SPI::Error>;
 }
 /// Tiny optional extension trait
 pub trait WaveshareDisplayExt<SPI, CS, BUSY, DC, RST>
 where
     SPI: Write<u8>,
-    CS: OutputPin,
-    BUSY: InputPin,
-    DC: OutputPin,
-    RST: OutputPin,
+    CS: OutputPin<Error = SPI::Error>,
+    BUSY: InputPin<Error = SPI::Error>,
+    DC: OutputPin<Error = SPI::Error>,
+    RST: OutputPin<Error = SPI::Error>,
 {
     // provide a combined update&display and save some time (skipping a busy check in between)
     fn update_and_display_frame(&mut self, spi: &mut SPI, buffer: &[u8]) -> Result<(), SPI::Error>;

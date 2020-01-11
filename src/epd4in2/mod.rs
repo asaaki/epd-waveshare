@@ -88,10 +88,10 @@ impl<SPI, CS, BUSY, DC, RST> InternalWiAdditions<SPI, CS, BUSY, DC, RST>
     for EPD4in2<SPI, CS, BUSY, DC, RST>
 where
     SPI: Write<u8>,
-    CS: OutputPin,
-    BUSY: InputPin,
-    DC: OutputPin,
-    RST: OutputPin,
+    CS: OutputPin<Error = SPI::Error>,
+    BUSY: InputPin<Error = SPI::Error>,
+    DC: OutputPin<Error = SPI::Error>,
+    RST: OutputPin<Error = SPI::Error>,
 {
     fn init<DELAY: DelayMs<u8>>(
         &mut self,
@@ -99,7 +99,7 @@ where
         delay: &mut DELAY,
     ) -> Result<(), SPI::Error> {
         // reset the device
-        self.interface.reset(delay);
+        self.interface.reset(delay)?;
 
         // set the power settings
         self.interface.cmd_with_data(
@@ -137,10 +137,10 @@ impl<SPI, CS, BUSY, DC, RST> WaveshareDisplay<SPI, CS, BUSY, DC, RST>
     for EPD4in2<SPI, CS, BUSY, DC, RST>
 where
     SPI: Write<u8>,
-    CS: OutputPin,
-    BUSY: InputPin,
-    DC: OutputPin,
-    RST: OutputPin,
+    CS: OutputPin<Error = SPI::Error>,
+    BUSY: InputPin<Error = SPI::Error>,
+    DC: OutputPin<Error = SPI::Error>,
+    RST: OutputPin<Error = SPI::Error>,
 {
     /// Creates a new driver from a SPI peripheral, CS Pin, Busy InputPin, DC
     ///
@@ -343,7 +343,7 @@ where
         }
     }
 
-    fn is_busy(&self) -> bool {
+    fn is_busy(&self) -> Result<bool, SPI::Error> {
         self.interface.is_busy(IS_BUSY_LOW)
     }
 }
@@ -351,10 +351,10 @@ where
 impl<SPI, CS, BUSY, DC, RST> EPD4in2<SPI, CS, BUSY, DC, RST>
 where
     SPI: Write<u8>,
-    CS: OutputPin,
-    BUSY: InputPin,
-    DC: OutputPin,
-    RST: OutputPin,
+    CS: OutputPin<Error = SPI::Error>,
+    BUSY: InputPin<Error = SPI::Error>,
+    DC: OutputPin<Error = SPI::Error>,
+    RST: OutputPin<Error = SPI::Error>,
 {
     fn command(&mut self, spi: &mut SPI, command: Command) -> Result<(), SPI::Error> {
         self.interface.cmd(spi, command)

@@ -39,17 +39,17 @@ impl<SPI, CS, BUSY, DC, RST> InternalWiAdditions<SPI, CS, BUSY, DC, RST>
     for EPD1in54b<SPI, CS, BUSY, DC, RST>
 where
     SPI: Write<u8>,
-    CS: OutputPin,
-    BUSY: InputPin,
-    DC: OutputPin,
-    RST: OutputPin,
+    CS: OutputPin<Error = SPI::Error>,
+    BUSY: InputPin<Error = SPI::Error>,
+    DC: OutputPin<Error = SPI::Error>,
+    RST: OutputPin<Error = SPI::Error>,
 {
     fn init<DELAY: DelayMs<u8>>(
         &mut self,
         spi: &mut SPI,
         delay: &mut DELAY,
     ) -> Result<(), SPI::Error> {
-        self.interface.reset(delay);
+        self.interface.reset(delay)?;
 
         // set the power settings
         self.interface
@@ -89,10 +89,10 @@ impl<SPI, CS, BUSY, DC, RST> WaveshareThreeColorDisplay<SPI, CS, BUSY, DC, RST>
     for EPD1in54b<SPI, CS, BUSY, DC, RST>
 where
     SPI: Write<u8>,
-    CS: OutputPin,
-    BUSY: InputPin,
-    DC: OutputPin,
-    RST: OutputPin,
+    CS: OutputPin<Error = SPI::Error>,
+    BUSY: InputPin<Error = SPI::Error>,
+    DC: OutputPin<Error = SPI::Error>,
+    RST: OutputPin<Error = SPI::Error>,
 {
     fn update_color_frame(
         &mut self,
@@ -123,10 +123,10 @@ impl<SPI, CS, BUSY, DC, RST> WaveshareDisplay<SPI, CS, BUSY, DC, RST>
     for EPD1in54b<SPI, CS, BUSY, DC, RST>
 where
     SPI: Write<u8>,
-    CS: OutputPin,
-    BUSY: InputPin,
-    DC: OutputPin,
-    RST: OutputPin,
+    CS: OutputPin<Error = SPI::Error>,
+    BUSY: InputPin<Error = SPI::Error>,
+    DC: OutputPin<Error = SPI::Error>,
+    RST: OutputPin<Error = SPI::Error>,
 {
     fn new<DELAY: DelayMs<u8>>(
         spi: &mut SPI,
@@ -283,7 +283,7 @@ where
         Ok(())
     }
 
-    fn is_busy(&self) -> bool {
+    fn is_busy(&self) -> Result<bool, SPI::Error> {
         self.interface.is_busy(IS_BUSY_LOW)
     }
 }
@@ -291,10 +291,10 @@ where
 impl<SPI, CS, BUSY, DC, RST> EPD1in54b<SPI, CS, BUSY, DC, RST>
 where
     SPI: Write<u8>,
-    CS: OutputPin,
-    BUSY: InputPin,
-    DC: OutputPin,
-    RST: OutputPin,
+    CS: OutputPin<Error = SPI::Error>,
+    BUSY: InputPin<Error = SPI::Error>,
+    DC: OutputPin<Error = SPI::Error>,
+    RST: OutputPin<Error = SPI::Error>,
 {
     fn command(&mut self, spi: &mut SPI, command: Command) -> Result<(), SPI::Error> {
         self.interface.cmd(spi, command)

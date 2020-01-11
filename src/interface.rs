@@ -23,10 +23,10 @@ pub(crate) struct DisplayInterface<SPI, CS, BUSY, DC, RST> {
 impl<SPI, CS, BUSY, DC, RST> DisplayInterface<SPI, CS, BUSY, DC, RST>
 where
     SPI: Write<u8>,
-    CS: OutputPin,
-    BUSY: InputPin,
-    DC: OutputPin,
-    RST: OutputPin,
+    CS: OutputPin<Error = SPI::Error>,
+    BUSY: InputPin<Error = SPI::Error>,
+    DC: OutputPin<Error = SPI::Error>,
+    RST: OutputPin<Error = SPI::Error>,
 {
     pub fn new(cs: CS, busy: BUSY, dc: DC, rst: RST) -> Self {
         DisplayInterface {
@@ -43,7 +43,7 @@ where
     /// Enables direct interaction with the device with the help of [data()](DisplayInterface::data())
     pub(crate) fn cmd<T: Command>(&mut self, spi: &mut SPI, command: T) -> Result<(), SPI::Error> {
         // low for commands
-        let _ = self.dc.set_low();
+        self.dc.set_low()?;
 
         // Transfer the command over spi
         self.write(spi, &[command.address()])
@@ -54,7 +54,7 @@ where
     /// Enables direct interaction with the device with the help of [command()](EPD4in2::command())
     pub(crate) fn data(&mut self, spi: &mut SPI, data: &[u8]) -> Result<(), SPI::Error> {
         // high for data
-        let _ = self.dc.set_high();
+        self.dc.set_high()?;
 
         // Transfer data (u8-array) over spi
         self.write(spi, data)
@@ -83,7 +83,7 @@ where
         repetitions: u32,
     ) -> Result<(), SPI::Error> {
         // high for data
-        let _ = self.dc.set_high();
+        self.dc.set_high()?;
         // Transfer data (u8) over spi
         for _ in 0..repetitions {
             self.write(spi, &[val])?;
@@ -94,7 +94,7 @@ where
     // spi write helper/abstraction function
     fn write(&mut self, spi: &mut SPI, data: &[u8]) -> Result<(), SPI::Error> {
         // activate spi with cs low
-        let _ = self.cs.set_low();
+        self.cs.set_low()?;
 
         // transfer spi data
         // Be careful!! Linux has a default limit of 4096 bytes per spi transfer
@@ -108,7 +108,7 @@ where
         }
 
         // deativate spi with cs high
-        let _ = self.cs.set_high();
+        self.cs.set_high()?;
 
         Ok(())
     }
@@ -130,7 +130,7 @@ where
         //tested: worked without the delay for all tested devices
         //self.delay_ms(1);
 
-        while self.is_busy(is_busy_low) {
+        while let Ok(true) = self.is_busy(is_busy_low) {
             //tested: REMOVAL of DELAY: it's only waiting for the signal anyway and should continue work asap
             //old: shorten the time? it was 100 in the beginning
             //self.delay_ms(5);
@@ -150,9 +150,12 @@ where
     ///
     /// Most likely there was a mistake with the 2in9 busy connection
     /// //TODO: use the #cfg feature to make this compile the right way for the certain types
-    pub(crate) fn is_busy(&self, is_busy_low: bool) -> bool {
-        (is_busy_low && self.busy.is_low().unwrap_or(false))
-            || (!is_busy_low && self.busy.is_high().unwrap_or(false))
+    pub(crate) fn is_busy(&self, is_busy_low: bool) -> Result<bool, SPI::Error> {
+        if is_busy_low {
+            self.busy.is_low()
+        } else {
+            self.busy.is_high()
+        }
     }
 
     /// Resets the device.
@@ -160,12 +163,16 @@ where
     /// Often used to awake the module from deep sleep. See [EPD4in2::sleep()](EPD4in2::sleep())
     ///
     /// TODO: Takes at least 400ms of delay alone, can it be shortened?
-    pub(crate) fn reset<DELAY: DelayMs<u8>>(&mut self, delay: &mut DELAY) {
-        let _ = self.rst.set_low();
+    pub(crate) fn reset<DELAY: DelayMs<u8>>(
+        &mut self,
+        delay: &mut DELAY,
+    ) -> Result<(), SPI::Error> {
+        self.rst.set_low()?;
         //TODO: why 200ms? (besides being in the arduino version)
         delay.delay_ms(200);
-        let _ = self.rst.set_high();
+        self.rst.set_high()?;
         //TODO: same as 3 lines above
         delay.delay_ms(200);
+        Ok(())
     }
 }

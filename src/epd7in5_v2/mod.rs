@@ -45,10 +45,10 @@ impl<SPI, CS, BUSY, DC, RST> InternalWiAdditions<SPI, CS, BUSY, DC, RST>
     for EPD7in5<SPI, CS, BUSY, DC, RST>
 where
     SPI: Write<u8>,
-    CS: OutputPin,
-    BUSY: InputPin,
-    DC: OutputPin,
-    RST: OutputPin,
+    CS: OutputPin<Error = SPI::Error>,
+    BUSY: InputPin<Error = SPI::Error>,
+    DC: OutputPin<Error = SPI::Error>,
+    RST: OutputPin<Error = SPI::Error>,
 {
     fn init<DELAY: DelayMs<u8>>(
         &mut self,
@@ -56,7 +56,7 @@ where
         delay: &mut DELAY,
     ) -> Result<(), SPI::Error> {
         // Reset the device
-        self.interface.reset(delay);
+        self.interface.reset(delay)?;
 
         // V2 procedure as described here:
         // https://github.com/waveshare/e-Paper/blob/master/RaspberryPi%26JetsonNano/python/lib/waveshare_epd/epd7in5bc_V2.py
@@ -82,10 +82,10 @@ impl<SPI, CS, BUSY, DC, RST> WaveshareDisplay<SPI, CS, BUSY, DC, RST>
     for EPD7in5<SPI, CS, BUSY, DC, RST>
 where
     SPI: Write<u8>,
-    CS: OutputPin,
-    BUSY: InputPin,
-    DC: OutputPin,
-    RST: OutputPin,
+    CS: OutputPin<Error = SPI::Error>,
+    BUSY: InputPin<Error = SPI::Error>,
+    DC: OutputPin<Error = SPI::Error>,
+    RST: OutputPin<Error = SPI::Error>,
 {
     /// Creates a new driver from a SPI peripheral, CS Pin, Busy InputPin, DC
     ///
@@ -201,7 +201,7 @@ where
         unimplemented!();
     }
 
-    fn is_busy(&self) -> bool {
+    fn is_busy(&self) -> Result<bool, SPI::Error> {
         self.interface.is_busy(IS_BUSY_LOW)
     }
 }
@@ -210,10 +210,10 @@ impl<SPI, CS, BUSY, DC, RST> WaveshareDisplayExt<SPI, CS, BUSY, DC, RST>
     for EPD7in5<SPI, CS, BUSY, DC, RST>
 where
     SPI: Write<u8>,
-    CS: OutputPin,
-    BUSY: InputPin,
-    DC: OutputPin,
-    RST: OutputPin,
+    CS: OutputPin<Error = SPI::Error>,
+    BUSY: InputPin<Error = SPI::Error>,
+    DC: OutputPin<Error = SPI::Error>,
+    RST: OutputPin<Error = SPI::Error>,
 {
     fn update_and_display_frame(&mut self, spi: &mut SPI, buffer: &[u8]) -> Result<(), SPI::Error> {
         self.command(spi, Command::DATA_START_TRANSMISSION_2)?;
@@ -229,10 +229,10 @@ where
 impl<SPI, CS, BUSY, DC, RST> EPD7in5<SPI, CS, BUSY, DC, RST>
 where
     SPI: Write<u8>,
-    CS: OutputPin,
-    BUSY: InputPin,
-    DC: OutputPin,
-    RST: OutputPin,
+    CS: OutputPin<Error = SPI::Error>,
+    BUSY: InputPin<Error = SPI::Error>,
+    DC: OutputPin<Error = SPI::Error>,
+    RST: OutputPin<Error = SPI::Error>,
 {
     fn command(&mut self, spi: &mut SPI, command: Command) -> Result<(), SPI::Error> {
         self.interface.cmd(spi, command)
